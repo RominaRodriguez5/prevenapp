@@ -5,8 +5,10 @@ services:
     name: prevenapp-api
     runtime: docker
     plan: free
+    # Las rutas son desde la raíz del repositorio
     rootDir: backend
-    dockerfilePath: ./Dockerfile
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /docs
     envVars:
       # Dirección de la base de datos de Neon (se pega a mano en Render, no se sube a GitHub)
