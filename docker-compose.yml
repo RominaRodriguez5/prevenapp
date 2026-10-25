@@ -1,0 +1,45 @@
+# Arranca tres servicios: la base de datos (PostgreSQL), la API (FastAPI)
+# y Mailpit, un buzón de correo de pruebas para ver los avisos en http://localhost:8025
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: prevenapp
+      POSTGRES_PASSWORD: prevenapp
+      POSTGRES_DB: prevenapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos_db:/var/lib/postgresql/data   # los datos se guardan aunque se apague el contenedor
+    healthcheck:   # comprueba cuándo PostgreSQL está listo para recibir conexiones
+      test: ["CMD-SHELL", "pg_isready -U prevenapp"]
+      interval: 2s
+      retries: 15
+
+  api:
+    build: ./backend
+    # En desarrollo: --reload reinicia la API cada vez que guardas un archivo
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    env_file: ./backend/.env
+    environment:
+      # En desarrollo los avisos se envían a Mailpit (no salen a internet)
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy   # la API espera a que la base de datos esté lista
+      mailpit:
+        condition: service_started
+    volumes:
+      - ./backend:/code   # los cambios en el código se ven sin reconstruir
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"   # página web para ver los correos
+      - "1025:1025"   # servidor de correo (SMTP)
+
+volumes:
+  datos_db:

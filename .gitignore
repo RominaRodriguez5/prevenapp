@@ -1,0 +1,18 @@
+.env
+__pycache__/
+*.pyc
+.venv*/
+.pytest_cache/
+
+# Nunca subir contraseñas ni claves
+*.env
+!.env.example
+key.properties
+*.jks
+*.keystore
+
+# Carpetas generadas (se crean solas al compilar)
+build/
+.dart_tool/
+.idea/
+*.iml

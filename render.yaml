@@ -1,0 +1,17 @@
+# Configuración para publicar la API en Render (https://render.com).
+# Render lee este archivo del repositorio de GitHub y crea el servicio solo.
+services:
+  - type: web
+    name: prevenapp-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /docs
+    envVars:
+      # Dirección de la base de datos de Neon (se pega a mano en Render, no se sube a GitHub)
+      - key: DATABASE_URL
+        sync: false
+      # Clave para firmar las sesiones: Render genera una aleatoria
+      - key: SECRET_KEY
+        generateValue: true
